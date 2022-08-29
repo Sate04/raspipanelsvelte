@@ -7,7 +7,7 @@
 </script>
 
 <main> 
-	<btn on:click={goto}>Hello</btn>
+	<btn class="text-3xl" on:click={goto}>Hello</btn>
 
 	{thing}
 </main>

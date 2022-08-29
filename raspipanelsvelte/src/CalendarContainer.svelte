@@ -28,13 +28,14 @@
 	let data = false;
 
 	onMount(async () => {
-		const docs = await getDocs(collection(db, "events"))
+		const docs = await getDocs(collection(db, "events"));
 		docs.forEach(doc => {
 			let data = doc.data();
-			items.push({title: "11:00 Task Early in month", className: "task--primary", date: new Date(2022, 7, 3), len: 3});
+			items.push({title: data.title, className: data.className, date: new Date(data.year, data.month, data.day), len: data.len});
 		});
 		data = true;
-	})
+		initMonthItems();
+	});
 
 	function initMonthItems() {
 		// title

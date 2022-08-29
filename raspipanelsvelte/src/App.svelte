@@ -1,54 +1,82 @@
 <script>
+	import Calendar from "./CalendarContainer.svelte";
 	let pagenum = 0;
-
-	function setpageone(){
-		pagenum = 1;
-	}
-	function setpagetwo(){
-		pagenum = 2;
-	}
-	function setpagethree(){
-		pagenum = 3;
-	}
-	function setpagefour(){
-		pagenum = 4;
-	}
 </script>
 
-<main> 
-	<div class="flex justify-evenly">
-		<div>
-			<btn on:click={setpageone}>Sports</btn>
+<main>
+	{#if pagenum == 0}
+		<div class="flex justify-evenly">
+			<div>
+				<btn
+					on:click={() => {
+						pagenum = 1;
+					}}>Sports</btn
+				>
+			</div>
+			<div>
+				<btn
+					on:click={() => {
+						pagenum = 2;
+					}}>News</btn
+				>
+			</div>
+			<div>
+				<btn
+					on:click={() => {
+						pagenum = 3;
+					}}>Cryptocurrency</btn
+				>
+			</div>
+			<div>
+				<btn
+					on:click={() => {
+						pagenum = 4;
+					}}>Calendar</btn
+				>
+			</div>
 		</div>
-		<div>
-			<btn on:click={setpagetwo}>News</btn>
-		</div>
-		<div>
-			<btn on:click={setpagethree}>Cryptocurrency</btn>
-		</div>
-		<div>
-			<btn on:click={setpagefour}>Calendar</btn>
-		</div>	
-	</div>
+	{/if}
+
 	{#if pagenum == 1}
-	<div>
-		Boo!
-	</div>
+		<div>
+			Boo! <btn
+				on:click={() => {
+					pagenum = 0;
+				}}>back</btn
+			>
+		</div>
 	{/if}
+
 	{#if pagenum == 2}
-	<div>
-		hey
-	</div>
+		<div>
+			hey <btn
+				on:click={() => {
+					pagenum = 0;
+				}}>back</btn
+			>
+		</div>
 	{/if}
+
 	{#if pagenum == 3}
-	<div>
-		whats up
-	</div>
+		<div>
+			whats up <btn
+				on:click={() => {
+					pagenum = 0;
+				}}>back</btn
+			>
+		</div>
 	{/if}
+
 	{#if pagenum == 4}
-	<div>
-		hi :0
-	</div>
+		<div>
+			<Calendar />
+
+			<btn
+				on:click={() => {
+					pagenum = 0;
+				}}>back</btn
+			>
+		</div>
 	{/if}
 </main>
 

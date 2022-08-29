@@ -7,7 +7,7 @@
     "watch:tailwind": "postcss public/css/tailwind.css -o public/css/app.css -w",
     "build": "rollup -c",
     "dev": "concurrently \"rollup -c -w\" \"npm run watch:tailwind\"",
-    "start": "electron ."
+    "start": "sirv public"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "autoprefixer": "^10.4.8",
+    "firebase": "^9.9.3",
     "postcss": "^8.4.16",
     "postcss-cli": "^10.0.0",
     "sirv-cli": "^2.0.0",

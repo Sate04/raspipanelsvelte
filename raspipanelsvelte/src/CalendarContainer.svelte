@@ -23,15 +23,18 @@
 	//	The items[] below are placed (by you) in a specified row & column of the calendar.
 	//	You need to call findRowCol() to calc the row/col based on each items start date. Each date box has a Date() property.
 	//	And, if an item overlaps rows, then you need to add a 2nd item on the subsequent row.
-	var items = [];
+	let items = [];
 
-	getDocs(collection(db, "events")).then(docs => {
+	let data = false;
+
+	onMount(async () => {
+		const docs = await getDocs(collection(db, "events"))
 		docs.forEach(doc => {
 			let data = doc.data();
-
 			items.push({title: "11:00 Task Early in month", className: "task--primary", date: new Date(2022, 7, 3), len: 3});
 		});
-	});
+		data = true;
+	})
 
 	function initMonthItems() {
 		// title
@@ -141,7 +144,9 @@
 		{eventText}
 	</div>
 
-	<Calendar {headers} {days} {items} on:dayClick={e => dayClick(e.detail)} on:itemClick={e => itemClick(e.detail)} on:headerClick={e => headerClick(e.detail)} />
+	{#if data}
+		<Calendar {headers} {days} {items} on:dayClick={e => dayClick(e.detail)} on:itemClick={e => itemClick(e.detail)} on:headerClick={e => headerClick(e.detail)} />
+	{/if}
 </div>
 
 <style>

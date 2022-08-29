@@ -1,29 +1,53 @@
 <script>
-	let thing = 1;
+	let pagenum = 0;
 
-	function goto(){
-		thing++;
+	function setpageone(){
+		pagenum = 1;
+	}
+	function setpagetwo(){
+		pagenum = 2;
+	}
+	function setpagethree(){
+		pagenum = 3;
+	}
+	function setpagefour(){
+		pagenum = 4;
 	}
 </script>
 
 <main> 
 	<div class="flex justify-evenly">
 		<div>
-			<btn on:click={goto}>Sports</btn>
+			<btn on:click={setpageone}>Sports</btn>
 		</div>
 		<div>
-			<btn>News</btn>
+			<btn on:click={setpagetwo}>News</btn>
 		</div>
 		<div>
-			<btn>Cryptocurrency</btn>
+			<btn on:click={setpagethree}>Cryptocurrency</btn>
 		</div>
 		<div>
-			<btn>Calendar</btn>
+			<btn on:click={setpagefour}>Calendar</btn>
 		</div>	
 	</div>
-	{#if thing > 3}
+	{#if pagenum == 1}
 	<div>
 		Boo!
+	</div>
+	{/if}
+	{#if pagenum == 2}
+	<div>
+		hey
+	</div>
+	{/if}
+	{#if pagenum == 3}
+	<div>
+		whats up
+	</div>
+	{/if}
+	{#if pagenum == 4}
+	<div>
+		hi :0
 	</div>
 	{/if}
 </main>

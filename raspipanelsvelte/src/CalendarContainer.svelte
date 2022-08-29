@@ -1,6 +1,8 @@
 <script>
 	import Calendar from "./Calendar.svelte";
 	import {createEventDispatcher, onMount} from "svelte";
+	import {collection, orderBy, getDocs} from "firebase/firestore";
+	import {db} from "../firebase.js";
 
 	var dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 	let monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -23,10 +25,19 @@
 	//	And, if an item overlaps rows, then you need to add a 2nd item on the subsequent row.
 	var items = [];
 
+	getDocs(collection(db, "events")).then(docs => {
+		docs.forEach(doc => {
+			let data = doc.data();
+
+			items.push({title: "11:00 Task Early in month", className: "task--primary", date: new Date(2022, 7, 3), len: 3});
+		});
+	});
+
 	function initMonthItems() {
-		let y = year;
-		let m = month;
-		items = [{title: "Birthday", className: "task--primary", date: new Date(), len: 3}];
+		// title
+		// className
+		// date (new Date(y,m,d))
+		// length
 
 		//This is where you calc the row/col to put each dated item
 		for (let i of items) {

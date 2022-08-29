@@ -508,9 +508,11 @@ video {
   --tw-backdrop-saturate:  ;
   --tw-backdrop-sepia:  ;
 }
-.text-3xl {
-  font-size: 1.875rem;
-  line-height: 2.25rem;
+.flex {
+  display: flex;
+}
+.justify-evenly {
+  justify-content: space-evenly;
 }
 .uppercase {
   text-transform: uppercase;

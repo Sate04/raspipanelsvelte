@@ -7,9 +7,25 @@
 </script>
 
 <main> 
-	<btn class="text-3xl" on:click={goto}>Hello</btn>
-
-	{thing}
+	<div class="flex justify-evenly">
+		<div>
+			<btn on:click={goto}>Sports</btn>
+		</div>
+		<div>
+			<btn>News</btn>
+		</div>
+		<div>
+			<btn>Cryptocurrency</btn>
+		</div>
+		<div>
+			<btn>Calendar</btn>
+		</div>	
+	</div>
+	{#if thing > 3}
+	<div>
+		Boo!
+	</div>
+	{/if}
 </main>
 
 <style>

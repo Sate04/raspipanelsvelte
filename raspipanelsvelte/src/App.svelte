@@ -2,6 +2,17 @@
     import Calendar from '@event-calendar/core';
     import TimeGrid from '@event-calendar/time-grid';
 	import DayGrid from '@event-calendar/day-grid'
+	import { doc, getDoc } from "firebase/firestore";
+	/*
+	onMount(async () => {
+		const docRef = doc(db, "events");
+		const docSnap = await getDoc(docRef);
+		console.log(docSnap);
+	})
+	*/
+
+
+	var items = [];
 
     let plugins = [TimeGrid, DayGrid];
     let options = {
@@ -12,8 +23,8 @@
             end: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
 		events: [{
-			id: 'birthday',
-			title: 'Birthday',
+			id: 'event1',
+			title: 'Today',
 			allDay: true,
 			start: new Date(),
 			end: new Date(),

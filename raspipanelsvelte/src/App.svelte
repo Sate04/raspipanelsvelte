@@ -1,39 +1,54 @@
 <script>
-    import Calendar from '@event-calendar/core';
-    import TimeGrid from '@event-calendar/time-grid';
-	import DayGrid from '@event-calendar/day-grid'
-	import { doc, getDoc } from "firebase/firestore";
-	/*
-	onMount(async () => {
-		const docRef = doc(db, "events");
-		const docSnap = await getDoc(docRef);
-		console.log(docSnap);
-	})
-	*/
-
+	import Calendar from "@event-calendar/core";
+	import TimeGrid from "@event-calendar/time-grid";
+	import DayGrid from "@event-calendar/day-grid";
+	import {initializeApp, getApps, getApp} from "firebase/app";
+	import {getFirestore, collection, onSnapshot, QuerySnapshot} from "firebase/firestore";
 
 	var items = [];
 
-    let plugins = [TimeGrid, DayGrid];
-    let options = {
-        view: 'dayGridMonth',
-        headerToolbar: {
-            start: 'prev,next today',
-            center: 'title',
-            end: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-		events: [{
-			id: 'event1',
-			title: 'Today',
-			allDay: true,
-			start: new Date(),
-			end: new Date(),
-		}
+	const firebaseConfig = {
+		apiKey: "AIzaSyAMgh-oHI4jvo-vBsvWuB98wHYB2M3QeTA",
+		authDomain: "calendar-5dc17.firebaseapp.com",
+		databaseURL: "https://calendar-5dc17-default-rtdb.firebaseio.com",
+		projectId: "calendar-5dc17",
+		storageBucket: "calendar-5dc17.appspot.com",
+		messagingSenderId: "151706105579",
+		appId: "1:151706105579:web:b2e4d33f03d08dd72830ae",
+		measurementId: "G-YB4GYQRF5J",
+	};
 
-		]
-    };
-	
+	const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
+	const db = getFirestore();
+
+	const colRef = collection(db, "events");
+
+	const data = onSnapshot(colRef, querySnapshot => {
+		querySnapshot.forEach(doc => {
+			var newEvent = {
+				id: doc.data().id,
+				title: doc.data().title,
+				allDay: true,
+				start: new Date(doc.data().year, doc.data().month, doc.data().day),
+				end: new Date(doc.data().year, doc.data().month, doc.data().day + doc.data().len),
+			};
+			console.log(newEvent);
+			items.push(newEvent);
+			items = items;
+		});
+	});
+
+	let plugins = [TimeGrid, DayGrid];
+	let options = {
+		view: "dayGridMonth",
+		headerToolbar: {
+			start: "prev,next today",
+			center: "title",
+			end: "dayGridMonth,timeGridWeek,timeGridDay",
+		},
+		events: items,
+	};
 
 	let pagenum = 0;
 </script>
@@ -104,8 +119,7 @@
 
 	{#if pagenum == 4}
 		<div>
-
-			<Calendar {plugins} {options}/>
+			<Calendar {plugins} {options} />
 
 			<btn
 				on:click={() => {

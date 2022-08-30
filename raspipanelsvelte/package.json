@@ -10,6 +10,9 @@
     "start": "sirv public"
   },
   "devDependencies": {
+    "@event-calendar/core": "^0.11.2",
+    "@event-calendar/list": "^0.11.2",
+    "@event-calendar/resource-time-grid": "^0.11.2",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
     "electron": "^20.1.0",
@@ -21,6 +24,8 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
+    "@event-calendar/day-grid": "^0.11.2",
+    "@event-calendar/time-grid": "^0.11.2",
     "autoprefixer": "^10.4.8",
     "concurrently": "^7.3.0",
     "firebase": "^9.9.3",

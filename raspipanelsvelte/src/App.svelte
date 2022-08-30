@@ -1,5 +1,29 @@
 <script>
-	import Calendar from "./CalendarContainer.svelte";
+    import Calendar from '@event-calendar/core';
+    import TimeGrid from '@event-calendar/time-grid';
+	import DayGrid from '@event-calendar/day-grid'
+
+    let plugins = [TimeGrid, DayGrid];
+    let options = {
+        view: 'dayGridMonth',
+        headerToolbar: {
+            start: 'prev,next today',
+            center: 'title',
+            end: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+		events: [{
+			id: 'birthday',
+			title: 'Birthday',
+			allDay: true,
+			start: new Date(),
+			end: new Date(),
+		}
+
+		]
+    };
+	
+
+
 	let pagenum = 0;
 </script>
 
@@ -69,7 +93,8 @@
 
 	{#if pagenum == 4}
 		<div>
-			<Calendar />
+
+			<Calendar {plugins} {options}/>
 
 			<btn
 				on:click={() => {

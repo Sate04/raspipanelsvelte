@@ -521,9 +521,6 @@ video {
 .grid {
   display: grid;
 }
-.h-96 {
-  height: 24rem;
-}
 .h-\[300px\] {
   height: 300px;
 }
@@ -556,12 +553,6 @@ video {
 }
 .gap-4 {
   gap: 1rem;
-}
-.pt-2 {
-  padding-top: 0.5rem;
-}
-.text-left {
-  text-align: left;
 }
 .font-bold {
   font-weight: 700;

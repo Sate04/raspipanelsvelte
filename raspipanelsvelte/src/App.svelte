@@ -8,6 +8,7 @@
 	import axios from 'axios'
 
 	import {NEWS_API_KEY} from '../apikey.js'
+import { get } from "svelte/store";
 
 	var items = [];
 
@@ -86,20 +87,26 @@
 
 	}
 	setInterval(cryptoUpdate, 10000);
-
 	let results = [];
+	let articles = [];
+	axios({
+		method: 'get',
+		url: 'https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty'
+	})
+  	.then(function (response) {
+    	results = response.data;
+		results = results.slice(0, 15);
+		results = results;
+		results.forEach(article => {
+			axios.get(`https://hacker-news.firebaseio.com/v0/item/${article}.json?print=pretty`).then(response => {
+				articles.push(response.data);
+				console.log(response.data)
+			})
+			
+		
+		})
 
-	function updateNews() {
-            let url = `https://newsapi.org/v2/top-headlines?country=us&apiKey=0b04547e2a924629877972327e577c31`;
-            axios
-        .get(
-          url
-        )
-        .then((response) => {
-          results = response.data.articles
-		  results = results;
-        });       
-        }
+  	});
 
 </script>
 
@@ -117,7 +124,6 @@
 			<div>
 				<btn
 					on:click={() => {
-						updateNews();
 						pagenum = 2;
 					}}>News</btn
 				>
@@ -155,11 +161,9 @@
 		<div>
 			<div class="flex flex-col flex-center">
 				<div class="grid grid-flow-row grid-cols-3 gap-4">
-					{#each results as article}
+					{#each articles as article}
 					<div>
-						<img class="h-96" src={article.urlToImage}/>
-						<p class="font-bold">{ article.title }</p>
-						<p class="pt-2 text-left">&nbsp;&nbsp;&nbsp;&nbsp;{article.content}</p>
+						<a href={article.url} class="font-bold">{ article.title }</a>
 					</div>
 					{/each}
 				</div>

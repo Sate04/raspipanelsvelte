@@ -4,9 +4,9 @@
 	import DayGrid from "@event-calendar/day-grid";
 	import {initializeApp, getApps, getApp} from "firebase/app";
 	import {getFirestore, collection, onSnapshot, doc, setDoc, getDoc, deleteDoc} from "firebase/firestore";
-	import {DateInput} from "date-picker-svelte";
+	import {DateInput, DatePicker} from "date-picker-svelte";
 	import axios from "axios";
-	import {Button, TextField, MaterialApp, Tabs, Tab, TabContent} from "svelte-materialify";
+	import {Button, TextField, MaterialApp, Tabs, Tab, TabContent, Switch} from "svelte-materialify";
 
 	let theme = "light";
 
@@ -31,15 +31,28 @@
 
 	const data = onSnapshot(colRef, querySnapshot => {
 		querySnapshot.forEach(doc => {
-			var newEvent = {
-				id: doc.data().id,
-				title: doc.data().title,
-				allDay: true,
-				start: new Date(doc.data().year, doc.data().month, doc.data().day),
-				end: new Date(doc.data().year, doc.data().month, doc.data().day + doc.data().len),
-			};
-			items.push(newEvent);
-			items = items;
+			if (doc.data().allDay) {
+				var newEvent = {
+					id: doc.data().id,
+					title: doc.data().title,
+					allDay: true,
+					start: new Date(doc.data().year, doc.data().month, doc.data().day),
+					end: new Date(doc.data().year, doc.data().month, doc.data().day + doc.data().len),
+				};
+				items.push(newEvent);
+				items = items;
+			} else {
+				var newEvent = {
+					id: doc.data().id,
+					title: doc.data().title,
+					allDay: false,
+					start: new Date(doc.data().year, doc.data().month, doc.data().day, doc.data().starthour, doc.data().startminute),
+					end: new Date(doc.data().year, doc.data().month, doc.data().day, doc.data().endhour, doc.data().endminute),
+				};
+
+				items.push(newEvent);
+				items = items;
+			}
 		});
 	});
 
@@ -60,7 +73,12 @@
 	let newTitle;
 	let newStart = new Date();
 	let newEnd;
+	let newEndTime;
+
+	let newStartTime;
+
 	let removeName;
+	let allDay = true;
 
 	let btc = cryptoUpdate();
 	let eth;
@@ -121,6 +139,23 @@
 			})
 			.slice(0, 15);
 	});
+
+	function parseTime(time, part) {
+		switch (part) {
+			case "hour":
+				if (time.length == 3) {
+					return parseInt(time.substring(0, 1));
+				} else {
+					return parseInt(time.substring(0, 2));
+				}
+			case "minute":
+				if (time.length == 3) {
+					return parseInt(time.substring(1, 3));
+				} else {
+					return parseInt(time.substring(2, 4));
+				}
+		}
+	}
 </script>
 
 <MaterialApp {theme}>
@@ -168,7 +203,6 @@
 				<Tab>Calendar</Tab>
 			</div>
 			<div>
-
 				<TabContent>
 					<!--SPORTS-->
 					<div>
@@ -228,7 +262,6 @@
 								DOGE: ${doge}
 							</p>
 						</div>
-
 					</div>
 				</TabContent>
 
@@ -242,27 +275,60 @@
 									<Button
 										class="my-4"
 										on:click={() => {
-											var newEvent = {
-												id: newTitle,
-												title: newTitle,
-												allDay: true,
-												year: newStart.getFullYear(),
-												month: newStart.getMonth(),
-												day: newStart.getDate(),
-												len: parseInt(newEnd),
-											};
+											if (allDay) {
+												var newEvent = {
+													id: newTitle,
+													title: newTitle,
+													allDay: true,
+													year: newStart.getFullYear(),
+													month: newStart.getMonth(),
+													day: newStart.getDate(),
+													len: parseInt(newEnd),
+												};
 
-											var newCalItem = {
-												id: newTitle,
-												title: newTitle,
-												allDay: true,
-												start: newStart,
-												end: new Date(newStart.getFullYear(), newStart.getMonth(), newStart.getDate() + parseInt(newEnd)),
-											};
+												var newCalItem = {
+													id: newTitle,
+													title: newTitle,
+													allDay: true,
+													start: newStart,
+													end: new Date(newStart.getFullYear(), newStart.getMonth(), newStart.getDate() + parseInt(newEnd)),
+												};
 
-											ec.addEvent(newCalItem);
+												ec.addEvent(newCalItem);
 
-											setDoc(doc(db, "events", newTitle), newEvent);
+												setDoc(doc(db, "events", newTitle), newEvent);
+											} else {
+												var newEvent = {
+													id: newTitle,
+													title: newTitle,
+													allDay: false,
+													year: newStart.getFullYear(),
+													month: newStart.getMonth(),
+													day: newStart.getDate(),
+													starthour: parseTime(newStartTime, "hour"),
+													startminute: parseTime(newStartTime, "minute"),
+													endhour: parseTime(newEndTime, "hour"),
+													endminute: parseTime(newEndTime, "minute"),
+												};
+
+												var newCalItem = {
+													id: newTitle,
+													title: newTitle,
+													allDay: false,
+													start: new Date(
+														newStart.getFullYear(),
+														newStart.getMonth(),
+														newStart.getDate(),
+														parseTime(newStartTime, "hour"),
+														parseTime(newStartTime, "minute")
+													),
+													end: new Date(newStart.getFullYear(), newStart.getMonth(), newStart.getDate(), parseTime(newEndTime, "hour"), parseTime(newEndTime, "minute")),
+												};
+
+												ec.addEvent(newCalItem);
+
+												setDoc(doc(db, "events", newTitle), newEvent);
+											}
 										}}
 									>
 										Add Event
@@ -272,13 +338,26 @@
 									<div class="flex justify-between">
 										<TextField outlined bind:value={newTitle}>Title</TextField>
 									</div>
-									<div class="flex justify-between my-3">
-										<p>Date:</p>
-										<DateInput on:select={console.log(newStart)} bind:value={newStart} />
+									<div class="flex justify-between mt-4">
+										All Day Event
+										<Switch bind:checked={allDay} />
 									</div>
-									<div class="flex justify-between">
-										<TextField outlined bind:value={newEnd}>Length</TextField>
+									<div class="flex justify-between my-4">
+										<DatePicker on:select={console.log(newStart)} bind:value={newStart} />
 									</div>
+
+									{#if !allDay}
+										<div class="flex justify-between my-4">
+											<TextField outlined bind:value={newStartTime}>Start Time</TextField>
+										</div>
+										<div class="flex justify-between mb-8">
+											<TextField outlined bind:value={newEndTime}>End Time</TextField>
+										</div>
+									{:else}
+										<div class="flex justify-between">
+											<TextField outlined bind:value={newEnd}>Length</TextField>
+										</div>
+									{/if}
 								</div>
 							</div>
 							<div class="flex flex-col">

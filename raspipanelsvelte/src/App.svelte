@@ -5,10 +5,10 @@
 	import {initializeApp, getApps, getApp} from "firebase/app";
 	import {getFirestore, collection, onSnapshot, doc, setDoc, getDoc, deleteDoc} from "firebase/firestore";
 	import {DateInput} from "date-picker-svelte";
-	import axios from 'axios'
+	import axios from "axios";
+	import {Button, TextField, MaterialApp, Tabs, Tab, TabContent} from "svelte-materialify";
 
-	import {NEWS_API_KEY} from '../apikey.js'
-import { get } from "svelte/store";
+	let theme = "light";
 
 	var items = [];
 
@@ -61,262 +61,252 @@ import { get } from "svelte/store";
 	let newStart = new Date();
 	let newEnd;
 	let removeName;
-	
+
 	let btc = cryptoUpdate();
 	let eth;
 	let doge;
 	function cryptoUpdate() {
-		if (pagenum == 3) {
-			axios({
-				method: 'get',
-				url: 'https://api.coingecko.com/api/v3/simple/price',
-				params: {
-					ids: 'bitcoin,ethereum,dogecoin',
-					vs_currencies: 'usd',
-				}
-			})
-			.then(function (response) {
-				btc = response.data.bitcoin.usd;
-				eth = response.data.ethereum.usd;
-				doge = response.data.dogecoin.usd;	
-				btc = btc;
-				eth = eth;
-				doge = doge;
-			})
-		}
-
+		axios({
+			method: "get",
+			url: "https://api.coingecko.com/api/v3/simple/price",
+			params: {
+				ids: "bitcoin,ethereum,dogecoin",
+				vs_currencies: "usd",
+			},
+		}).then(function (response) {
+			console.log(response.data);
+			btc = response.data.bitcoin.usd;
+			eth = response.data.ethereum.usd;
+			doge = response.data.dogecoin.usd;
+			btc = btc;
+			eth = eth;
+			doge = doge;
+		});
 	}
-	setInterval(cryptoUpdate, 10000);
+	setInterval(cryptoUpdate, 1000);
 	let results = [];
 	let articles = [];
 	axios({
-		method: 'get',
-		url: 'https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty'
-	})
-  	.then(function (response) {
-    	results = response.data;
+		method: "get",
+		url: "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty",
+	}).then(function (response) {
+		results = response.data;
 		results = results.slice(0, 15);
 		results = results;
 		results.forEach(article => {
 			axios.get(`https://hacker-news.firebaseio.com/v0/item/${article}.json?print=pretty`).then(response => {
 				articles.push(response.data);
-			})
-			
-		
-		})
-
-  	});
+			});
+		});
+	});
 
 	let newsHeadlines = [];
 
 	const newsOptions = {
-		method: 'GET',
-		url: 'https://bing-news-search1.p.rapidapi.com/news',
-		params: {safeSearch: 'Off', textFormat: 'Raw'},
+		method: "GET",
+		url: "https://bing-news-search1.p.rapidapi.com/news",
+		params: {safeSearch: "Off", textFormat: "Raw"},
 		headers: {
-			'X-BingApis-SDK': 'true',
-			'X-RapidAPI-Key': '05bd952bb4msh67835f4b906300dp1b8e75jsn687a13b64ecb',
-			'X-RapidAPI-Host': 'bing-news-search1.p.rapidapi.com'
-		}
+			"X-BingApis-SDK": "true",
+			"X-RapidAPI-Key": "05bd952bb4msh67835f4b906300dp1b8e75jsn687a13b64ecb",
+			"X-RapidAPI-Host": "bing-news-search1.p.rapidapi.com",
+		},
 	};
 
 	axios.request(newsOptions).then(function (response) {
-		newsHeadlines = response.data.value
-		newsHeadlines = newsHeadlines.filter(article => {
-			return article.image != null;
-		}).slice(0, 15);
-	})
-	
+		newsHeadlines = response.data.value;
+		newsHeadlines = newsHeadlines
+			.filter(article => {
+				return article.image != null;
+			})
+			.slice(0, 15);
+	});
 </script>
 
-<main>
-	{#if pagenum == 0}
-		<div class="flex justify-evenly">
-			<div>
-				<btn
-					on:click={() => {
-						
-						pagenum = 1;
-					}}>Sports</btn
-				>
-			</div>
-			<div>
-				<btn
-					on:click={() => {
-						pagenum = 2;
-					}}>News</btn
-				>
-			</div>
-			<div>
-				<btn
-					on:click={() => {
-						pagenum = 3;
-						cryptoUpdate();
-					}}>Cryptocurrency</btn
-				>
-			</div>
-			<div>
-				<btn
-					on:click={() => {
-						pagenum = 4;
-					}}>Calendar</btn
-				>
-			</div>
-		</div>
-	{/if}
-
-	{#if pagenum == 1}
-		<div>
-			<iframe width="560" height="315" src="https://www.youtube.com/embed/kknVfOJZ1w0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-			<btn
-				on:click={() => {
-					pagenum = 0;
-				}}>back</btn
-			>
-		</div>
-	{/if}
-
-	{#if pagenum == 2}
-		<div>
-			<div class="flex flex-col flex-center">
-				
-				<div class="grid grid-flow-row grid-cols-3 gap-4">
-					{#each newsHeadlines as article}
-					<div>
-						<img class="h-48" src={article.image.thumbnail.contentUrl}/>
-						<a href={article.url} class="font-bold">{ article.name }</a>
-						<p>{article.description}</p>
-					</div>
-					{/each}
-				</div>
-				<div class="grid grid-flow-row grid-cols-3 gap-4">
-					{#each articles as article}
-					<div>
-						<a href={article.url} class="font-bold">{ article.title }</a>
-					</div>
-					{/each}
-				</div>
-				<img class="h-[300px]" src="https://i.kym-cdn.com/photos/images/original/002/237/978/0d1.jpg" />
-		
-		
-			</div>
-			<btn
-				on:click={() => {
-					pagenum = 0;
-				}}>back</btn
-			>
-		</div>
-	{/if}
-
-	{#if pagenum == 3}
-		<div class="flex flex-col justify-center">
+<MaterialApp {theme}>
+	<main>
+		<!--
+		{#if pagenum == 0}
 			<div class="flex justify-evenly">
-				<img alt="Sorry" src="https://bitcoin.org/img/icons/opengraph.png?1660986466" />
+				<div>
+					<btn
+						on:click={() => {
+							pagenum = 1;
+						}}>Sports</btn
+					>
+				</div>
+				<div>
+					<btn
+						on:click={() => {
+							pagenum = 2;
+						}}>News</btn
+					>
+				</div>
+				<div>
+					<btn
+						on:click={() => {
+							pagenum = 3;
+							cryptoUpdate();
+						}}>Cryptocurrency</btn
+					>
+				</div>
+				<div>
+					<btn
+						on:click={() => {
+							pagenum = 4;
+						}}>Calendar</btn
+					>
+				</div>
 			</div>
-			<div class="flex flex-row justify-around">
-				<p>
-					
-				BTC: ${btc}
-				
-				</p>
-				<p>
-					
-				ETH: ${eth}
-					
-				</p>
-				<p>
-					
-				DOGE: ${doge}
-				
-				</p>
+		{/if}
+		-->
+		<Tabs centerActive>
+			<div slot="tabs">
+				<Tab>Sports</Tab>
+				<Tab>News</Tab>
+				<Tab>Cryptocurrency</Tab>
+				<Tab>Calendar</Tab>
 			</div>
 			<div>
-				<btn
-				on:click={() => {
-					pagenum = 0;
-				}}>back</btn
-				>
-			</div>
-		</div>
-	{/if}
 
-	{#if pagenum == 4}
-		<div>
-			<Calendar bind:this={ec} {plugins} {options} />
-			<div class="flex flex-row">
-				<div class="flex flex-col">
-					<div class="w-[250px]">
-						<btn
-							on:click={() => {
-								var newEvent = {
-									id: newTitle,
-									title: newTitle,
-									allDay: true,
-									year: newStart.getFullYear(),
-									month: newStart.getMonth(),
-									day: newStart.getDate(),
-									len: parseInt(newEnd),
-								};
-
-								var newCalItem = {
-									id: newTitle,
-									title: newTitle,
-									allDay: true,
-									start: newStart,
-									end: new Date(newStart.getFullYear(), newStart.getMonth(), newStart.getDate() + parseInt(newEnd)),
-								};
-
-
-								ec.addEvent(newCalItem);
-
-								setDoc(doc(db, "events", newTitle), newEvent);
-							}}
-						>
-							Add Event
-						</btn>
-					</div>
-					<div class="mr-4">
-						<div class="flex justify-between">
-							<p>Title:</p>
-							<input bind:value={newTitle} />
-						</div>
-						<div class="flex justify-between my-3">
-							<p>Date:</p>
-							<DateInput on:select={console.log(newStart)} bind:value={newStart} />
-						</div>
-						<div class="flex justify-between">
-							<p>Length:</p>
-							<input bind:value={newEnd} />
-						</div>
-					</div>
-				</div>
-				<div class="flex flex-col">
+				<TabContent>
+					<!--SPORTS-->
 					<div>
-						<btn
-							on:click={() => {
-								deleteDoc(doc(db, "events", removeName));
-
-								ec.removeEventById(removeName);
-							}}
-						>
-							Remove Event
-						</btn>
+						<iframe
+							width="560"
+							height="315"
+							src="https://www.youtube.com/embed/kknVfOJZ1w0"
+							title="YouTube video player"
+							frameborder="0"
+							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+							allowfullscreen
+						/>
 					</div>
+				</TabContent>
+
+				<TabContent>
+					<!--NEWS-->
 					<div>
-						<div>
-							Name: <input bind:value={removeName} />
+						<div class="flex flex-col flex-center">
+							<h1>Top Headlines</h1>
+							<div class="grid grid-flow-row grid-cols-3 gap-8 mx-[20%]">
+								{#each newsHeadlines as article}
+									<div class="flex flex-col flex-center">
+										<img class="h-48" src={article.image.thumbnail.contentUrl} />
+										<a href={article.url} class="font-bold">{article.name}</a>
+										<p class="text-left">{article.description}</p>
+									</div>
+								{/each}
+							</div>
+							<h1>Hacker News</h1>
+							<div class="grid grid-flow-row grid-cols-3 gap-4">
+								{#each articles as article}
+									<div>
+										<a href={article.url} class="font-bold">{article.title}</a>
+									</div>
+								{/each}
+							</div>
+							<img class="h-[300px]" src="https://i.kym-cdn.com/photos/images/original/002/237/978/0d1.jpg" />
 						</div>
 					</div>
-				</div>
+				</TabContent>
+
+				<TabContent>
+					<!--CRYPTO-->
+					<div class="flex flex-col justify-center">
+						<div class="flex justify-evenly">
+							<img alt="Sorry" src="https://bitcoin.org/img/icons/opengraph.png?1660986466" />
+						</div>
+						<div class="flex flex-row justify-around">
+							<p>
+								BTC: ${btc}
+							</p>
+							<p>
+								ETH: ${eth}
+							</p>
+							<p>
+								DOGE: ${doge}
+							</p>
+						</div>
+
+					</div>
+				</TabContent>
+
+				<TabContent>
+					<!--CALENDAR-->
+					<div>
+						<Calendar bind:this={ec} {plugins} {options} />
+						<div class="flex flex-row">
+							<div class="flex flex-col">
+								<div class="w-[250px]">
+									<Button
+										class="my-4"
+										on:click={() => {
+											var newEvent = {
+												id: newTitle,
+												title: newTitle,
+												allDay: true,
+												year: newStart.getFullYear(),
+												month: newStart.getMonth(),
+												day: newStart.getDate(),
+												len: parseInt(newEnd),
+											};
+
+											var newCalItem = {
+												id: newTitle,
+												title: newTitle,
+												allDay: true,
+												start: newStart,
+												end: new Date(newStart.getFullYear(), newStart.getMonth(), newStart.getDate() + parseInt(newEnd)),
+											};
+
+											ec.addEvent(newCalItem);
+
+											setDoc(doc(db, "events", newTitle), newEvent);
+										}}
+									>
+										Add Event
+									</Button>
+								</div>
+								<div class="mr-4">
+									<div class="flex justify-between">
+										<TextField outlined bind:value={newTitle}>Title</TextField>
+									</div>
+									<div class="flex justify-between my-3">
+										<p>Date:</p>
+										<DateInput on:select={console.log(newStart)} bind:value={newStart} />
+									</div>
+									<div class="flex justify-between">
+										<TextField outlined bind:value={newEnd}>Length</TextField>
+									</div>
+								</div>
+							</div>
+							<div class="flex flex-col">
+								<div>
+									<Button
+										class="my-4"
+										on:click={() => {
+											deleteDoc(doc(db, "events", removeName));
+
+											ec.removeEventById(removeName);
+										}}
+									>
+										Remove Event
+									</Button>
+								</div>
+								<div>
+									<div>
+										<TextField outlined bind:value={removeName}>Title</TextField>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</TabContent>
 			</div>
-			<btn
-				on:click={() => {
-					pagenum = 0;
-				}}>back</btn
-			>
-		</div>
-	{/if}
-</main>
+		</Tabs>
+	</main>
+</MaterialApp>
 
 <style>
 	main {

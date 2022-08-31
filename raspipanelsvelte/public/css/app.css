@@ -508,6 +508,14 @@ video {
   --tw-backdrop-saturate:  ;
   --tw-backdrop-sepia:  ;
 }
+.mx-\[20\%\] {
+  margin-left: 20%;
+  margin-right: 20%;
+}
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
 .my-3 {
   margin-top: 0.75rem;
   margin-bottom: 0.75rem;
@@ -554,8 +562,14 @@ video {
 .justify-evenly {
   justify-content: space-evenly;
 }
+.gap-8 {
+  gap: 2rem;
+}
 .gap-4 {
   gap: 1rem;
+}
+.text-left {
+  text-align: left;
 }
 .font-bold {
   font-weight: 700;

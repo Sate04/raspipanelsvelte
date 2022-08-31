@@ -128,7 +128,7 @@
 			<Calendar bind:this={ec} {plugins} {options} />
 			<div class="flex flex-row">
 				<div class="flex flex-col">
-					<div>
+					<div class="w-[250px]">
 						<btn
 							on:click={() => {
 								var newEvent = {
@@ -141,7 +141,16 @@
 									len: parseInt(newEnd),
 								};
 
-								ec.addEvent(newEvent);
+								var newCalItem = {
+									id: newTitle,
+									title: newTitle,
+									allDay: true,
+									start: newStart,
+									end: new Date(newStart.getFullYear(), newStart.getMonth(), newStart.getDate() + parseInt(newEnd)),
+								};
+
+
+								ec.addEvent(newCalItem);
 
 								setDoc(doc(db, "events", newTitle), newEvent);
 							}}
@@ -149,15 +158,18 @@
 							Add Event
 						</btn>
 					</div>
-					<div>
-						<div>
-							Name: <input bind:value={newTitle} />
+					<div class="mr-4">
+						<div class="flex justify-between">
+							<p>Title:</p>
+							<input bind:value={newTitle} />
 						</div>
-						<div>
-							Start: <DateInput on:select={console.log(newStart)} bind:value={newStart} />
+						<div class="flex justify-between my-3">
+							<p>Date:</p>
+							<DateInput on:select={console.log(newStart)} bind:value={newStart} />
 						</div>
-						<div>
-							Length: <input bind:value={newEnd} />
+						<div class="flex justify-between">
+							<p>Length:</p>
+							<input bind:value={newEnd} />
 						</div>
 					</div>
 				</div>

@@ -3,7 +3,8 @@
 	import TimeGrid from "@event-calendar/time-grid";
 	import DayGrid from "@event-calendar/day-grid";
 	import {initializeApp, getApps, getApp} from "firebase/app";
-	import {getFirestore, collection, onSnapshot, QuerySnapshot} from "firebase/firestore";
+	import {getFirestore, collection, onSnapshot, doc, setDoc, getDoc, deleteDoc} from "firebase/firestore";
+	import {DateInput} from "date-picker-svelte";
 
 	var items = [];
 
@@ -33,12 +34,12 @@
 				start: new Date(doc.data().year, doc.data().month, doc.data().day),
 				end: new Date(doc.data().year, doc.data().month, doc.data().day + doc.data().len),
 			};
-			console.log(newEvent);
 			items.push(newEvent);
 			items = items;
 		});
 	});
 
+	let ec;
 	let plugins = [TimeGrid, DayGrid];
 	let options = {
 		view: "dayGridMonth",
@@ -51,6 +52,11 @@
 	};
 
 	let pagenum = 0;
+
+	let newTitle;
+	let newStart = new Date();
+	let newEnd;
+	let removeName;
 </script>
 
 <main>
@@ -119,8 +125,61 @@
 
 	{#if pagenum == 4}
 		<div>
-			<Calendar {plugins} {options} />
+			<Calendar bind:this={ec} {plugins} {options} />
+			<div class="flex flex-row">
+				<div class="flex flex-col">
+					<div>
+						<btn
+							on:click={() => {
+								var newEvent = {
+									id: newTitle,
+									title: newTitle,
+									allDay: true,
+									year: newStart.getFullYear(),
+									month: newStart.getMonth(),
+									day: newStart.getDate(),
+									len: parseInt(newEnd),
+								};
 
+								ec.addEvent(newEvent);
+
+								setDoc(doc(db, "events", newTitle), newEvent);
+							}}
+						>
+							Add Event
+						</btn>
+					</div>
+					<div>
+						<div>
+							Name: <input bind:value={newTitle} />
+						</div>
+						<div>
+							Start: <DateInput on:select={console.log(newStart)} bind:value={newStart} />
+						</div>
+						<div>
+							Length: <input bind:value={newEnd} />
+						</div>
+					</div>
+				</div>
+				<div class="flex flex-col">
+					<div>
+						<btn
+							on:click={() => {
+								deleteDoc(doc(db, "events", removeName));
+
+								ec.removeEventById(removeName);
+							}}
+						>
+							Remove Event
+						</btn>
+					</div>
+					<div>
+						<div>
+							Name: <input bind:value={removeName} />
+						</div>
+					</div>
+				</div>
+			</div>
 			<btn
 				on:click={() => {
 					pagenum = 0;

@@ -53,7 +53,9 @@
 				items.push(newEvent);
 				items = items;
 			}
+			items = items;
 		});
+		
 	});
 
 	let ec;
@@ -92,7 +94,6 @@
 				vs_currencies: "usd",
 			},
 		}).then(function (response) {
-			console.log(response.data);
 			btc = response.data.bitcoin.usd;
 			eth = response.data.ethereum.usd;
 			doge = response.data.dogecoin.usd;

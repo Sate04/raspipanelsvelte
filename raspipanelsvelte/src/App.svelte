@@ -7,6 +7,8 @@
 	import {DateInput} from "date-picker-svelte";
 	import axios from 'axios'
 
+	import {NEWS_API_KEY} from '../apikey.js'
+
 	var items = [];
 
 	const firebaseConfig = {
@@ -85,6 +87,21 @@
 	}
 	setInterval(cryptoUpdate, 10000);
 
+	let results = [];
+
+	function update() {
+            let url = `https://newsapi.org/v2/top-headlines?country=us&apiKey=${NEWS_API_KEY}`;
+            axios
+        .get(
+          url
+        )
+        .then((response) => {
+          results = response.data.articles
+        });       
+        }
+
+	update();
+
 </script>
 
 <main>
@@ -124,7 +141,8 @@
 
 	{#if pagenum == 1}
 		<div>
-			Boo! <btn
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/kknVfOJZ1w0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<btn
 				on:click={() => {
 					pagenum = 0;
 				}}>back</btn
@@ -134,7 +152,21 @@
 
 	{#if pagenum == 2}
 		<div>
-			hey <btn
+			<div class="flex flex-col flex-center">
+				<div class="grid grid-flow-row grid-cols-3 gap-4">
+					{#each results as article}
+					<div>
+						<img class="h-96" src={article.urlToImage}/>
+						<p class="font-bold">{ article.title }</p>
+						<p class="pt-2 text-left">&nbsp;&nbsp;&nbsp;&nbsp;{article.content}</p>
+					</div>
+					{/each}
+				</div>
+				<img class="h-[300px]" src="https://i.kym-cdn.com/photos/images/original/002/237/978/0d1.jpg" />
+		
+		
+			</div>
+			<btn
 				on:click={() => {
 					pagenum = 0;
 				}}>back</btn

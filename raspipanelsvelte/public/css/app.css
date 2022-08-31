@@ -518,8 +518,23 @@ video {
 .flex {
   display: flex;
 }
+.grid {
+  display: grid;
+}
+.h-96 {
+  height: 24rem;
+}
+.h-\[300px\] {
+  height: 300px;
+}
 .w-\[250px\] {
   width: 250px;
+}
+.grid-flow-row {
+  grid-auto-flow: row;
+}
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 .flex-row {
   flex-direction: row;
@@ -538,6 +553,18 @@ video {
 }
 .justify-evenly {
   justify-content: space-evenly;
+}
+.gap-4 {
+  gap: 1rem;
+}
+.pt-2 {
+  padding-top: 0.5rem;
+}
+.text-left {
+  text-align: left;
+}
+.font-bold {
+  font-weight: 700;
 }
 .uppercase {
   text-transform: uppercase;

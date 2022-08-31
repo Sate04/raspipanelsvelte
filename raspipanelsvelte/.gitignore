@@ -1,4 +1,5 @@
 /node_modules/
 /public/build/
+apikey.js/
 
 .DS_Store

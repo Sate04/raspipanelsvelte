@@ -61,7 +61,7 @@ import { get } from "svelte/store";
 	let newStart = new Date();
 	let newEnd;
 	let removeName;
-
+	
 	let btc = cryptoUpdate();
 	let eth;
 	let doge;
@@ -100,7 +100,6 @@ import { get } from "svelte/store";
 		results.forEach(article => {
 			axios.get(`https://hacker-news.firebaseio.com/v0/item/${article}.json?print=pretty`).then(response => {
 				articles.push(response.data);
-				console.log(response.data)
 			})
 			
 		
@@ -108,6 +107,26 @@ import { get } from "svelte/store";
 
   	});
 
+	let newsHeadlines = [];
+
+	const newsOptions = {
+		method: 'GET',
+		url: 'https://bing-news-search1.p.rapidapi.com/news',
+		params: {safeSearch: 'Off', textFormat: 'Raw'},
+		headers: {
+			'X-BingApis-SDK': 'true',
+			'X-RapidAPI-Key': '05bd952bb4msh67835f4b906300dp1b8e75jsn687a13b64ecb',
+			'X-RapidAPI-Host': 'bing-news-search1.p.rapidapi.com'
+		}
+	};
+
+	axios.request(newsOptions).then(function (response) {
+		newsHeadlines = response.data.value
+		newsHeadlines = newsHeadlines.filter(article => {
+			return article.image != null;
+		}).slice(0, 15);
+	})
+	
 </script>
 
 <main>
@@ -160,6 +179,16 @@ import { get } from "svelte/store";
 	{#if pagenum == 2}
 		<div>
 			<div class="flex flex-col flex-center">
+				
+				<div class="grid grid-flow-row grid-cols-3 gap-4">
+					{#each newsHeadlines as article}
+					<div>
+						<img class="h-48" src={article.image.thumbnail.contentUrl}/>
+						<a href={article.url} class="font-bold">{ article.name }</a>
+						<p>{article.description}</p>
+					</div>
+					{/each}
+				</div>
 				<div class="grid grid-flow-row grid-cols-3 gap-4">
 					{#each articles as article}
 					<div>

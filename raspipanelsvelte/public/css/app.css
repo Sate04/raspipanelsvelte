@@ -521,6 +521,9 @@ video {
 .grid {
   display: grid;
 }
+.h-48 {
+  height: 12rem;
+}
 .h-\[300px\] {
   height: 300px;
 }
@@ -559,4 +562,7 @@ video {
 }
 .uppercase {
   text-transform: uppercase;
+}
+.filter {
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }

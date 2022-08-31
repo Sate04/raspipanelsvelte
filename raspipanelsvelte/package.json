@@ -7,7 +7,7 @@
     "watch:tailwind": "postcss public/css/tailwind.css -o public/css/app.css -w",
     "build": "rollup -c",
     "dev": "concurrently \"rollup -c -w\" \"npm run watch:tailwind\"",
-    "start": "sirv public"
+    "start": "electron ."
   },
   "devDependencies": {
     "@event-calendar/core": "^0.11.2",

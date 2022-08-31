@@ -89,18 +89,17 @@
 
 	let results = [];
 
-	function update() {
-            let url = `https://newsapi.org/v2/top-headlines?country=us&apiKey=${NEWS_API_KEY}`;
+	function updateNews() {
+            let url = `https://newsapi.org/v2/top-headlines?country=us&apiKey=0b04547e2a924629877972327e577c31`;
             axios
         .get(
           url
         )
         .then((response) => {
           results = response.data.articles
+		  results = results;
         });       
         }
-
-	update();
 
 </script>
 
@@ -110,6 +109,7 @@
 			<div>
 				<btn
 					on:click={() => {
+						
 						pagenum = 1;
 					}}>Sports</btn
 				>
@@ -117,6 +117,7 @@
 			<div>
 				<btn
 					on:click={() => {
+						updateNews();
 						pagenum = 2;
 					}}>News</btn
 				>

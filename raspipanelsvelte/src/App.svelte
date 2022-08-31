@@ -5,6 +5,7 @@
 	import {initializeApp, getApps, getApp} from "firebase/app";
 	import {getFirestore, collection, onSnapshot, doc, setDoc, getDoc, deleteDoc} from "firebase/firestore";
 	import {DateInput} from "date-picker-svelte";
+	import axios from 'axios'
 
 	var items = [];
 
@@ -57,6 +58,33 @@
 	let newStart = new Date();
 	let newEnd;
 	let removeName;
+
+	let btc = cryptoUpdate();
+	let eth;
+	let doge;
+	function cryptoUpdate() {
+		if (pagenum == 3) {
+			axios({
+				method: 'get',
+				url: 'https://api.coingecko.com/api/v3/simple/price',
+				params: {
+					ids: 'bitcoin,ethereum,dogecoin',
+					vs_currencies: 'usd',
+				}
+			})
+			.then(function (response) {
+				btc = response.data.bitcoin.usd;
+				eth = response.data.ethereum.usd;
+				doge = response.data.dogecoin.usd;	
+				btc = btc;
+				eth = eth;
+				doge = doge;
+			})
+		}
+
+	}
+	setInterval(cryptoUpdate, 10000);
+
 </script>
 
 <main>
@@ -80,6 +108,7 @@
 				<btn
 					on:click={() => {
 						pagenum = 3;
+						cryptoUpdate();
 					}}>Cryptocurrency</btn
 				>
 			</div>
@@ -114,12 +143,34 @@
 	{/if}
 
 	{#if pagenum == 3}
-		<div>
-			whats up <btn
+		<div class="flex flex-col justify-center">
+			<div class="flex justify-evenly">
+				<img alt="Sorry" src="https://bitcoin.org/img/icons/opengraph.png?1660986466" />
+			</div>
+			<div class="flex flex-row justify-around">
+				<p>
+					
+				BTC: ${btc}
+				
+				</p>
+				<p>
+					
+				ETH: ${eth}
+					
+				</p>
+				<p>
+					
+				DOGE: ${doge}
+				
+				</p>
+			</div>
+			<div>
+				<btn
 				on:click={() => {
 					pagenum = 0;
 				}}>back</btn
-			>
+				>
+			</div>
 		</div>
 	{/if}
 

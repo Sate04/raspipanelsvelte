@@ -1,6 +1,5 @@
 /node_modules/
 /public/build/
 apikey.js/
-/imagereciever/secrets.json/
-
+/imagereciever/hidden/
 .DS_Store

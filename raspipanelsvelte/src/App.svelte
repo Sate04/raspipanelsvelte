@@ -10,7 +10,7 @@
 
 	let theme = "light";
 
-	var items = [];
+	let items = [];
 
 	const firebaseConfig = {
 		apiKey: "AIzaSyAMgh-oHI4jvo-vBsvWuB98wHYB2M3QeTA",
@@ -29,7 +29,20 @@
 
 	const colRef = collection(db, "events");
 
+	let options = {
+		view: "dayGridMonth",
+		headerToolbar: {
+			start: "prev,next today",
+			center: "title",
+			end: "dayGridMonth,timeGridWeek,timeGridDay",
+		},
+		events: items,
+	};
+
+	let rerender = false;
+
 	const data = onSnapshot(colRef, querySnapshot => {
+		rerender = false;
 		querySnapshot.forEach(doc => {
 			if (doc.data().allDay) {
 				var newEvent = {
@@ -40,7 +53,6 @@
 					end: new Date(doc.data().year, doc.data().month, doc.data().day + doc.data().len),
 				};
 				items.push(newEvent);
-				items = items;
 			} else {
 				var newEvent = {
 					id: doc.data().id,
@@ -51,24 +63,13 @@
 				};
 
 				items.push(newEvent);
-				items = items;
 			}
-			items = items;
 		});
-		
+		rerender = true;
 	});
 
 	let ec;
 	let plugins = [TimeGrid, DayGrid];
-	let options = {
-		view: "dayGridMonth",
-		headerToolbar: {
-			start: "prev,next today",
-			center: "title",
-			end: "dayGridMonth,timeGridWeek,timeGridDay",
-		},
-		events: items,
-	};
 
 	let pagenum = 0;
 
@@ -268,120 +269,122 @@
 
 				<TabContent>
 					<!--CALENDAR-->
-					<div>
-						<Calendar bind:this={ec} {plugins} {options} />
-						<div class="flex flex-row">
-							<div class="flex flex-col">
-								<div class="w-[250px]">
-									<Button
-										class="my-4"
-										on:click={() => {
-											if (allDay) {
-												var newEvent = {
-													id: newTitle,
-													title: newTitle,
-													allDay: true,
-													year: newStart.getFullYear(),
-													month: newStart.getMonth(),
-													day: newStart.getDate(),
-													len: parseInt(newEnd),
-												};
+					{#if rerender}
+						<div>
+							<Calendar bind:this={ec} {plugins} {options} />
+							<div class="flex flex-row">
+								<div class="flex flex-col">
+									<div class="w-[250px]">
+										<Button
+											class="my-4"
+											on:click={() => {
+												if (allDay) {
+													var newEvent = {
+														id: newTitle,
+														title: newTitle,
+														allDay: true,
+														year: newStart.getFullYear(),
+														month: newStart.getMonth(),
+														day: newStart.getDate(),
+														len: parseInt(newEnd),
+													};
 
-												var newCalItem = {
-													id: newTitle,
-													title: newTitle,
-													allDay: true,
-													start: newStart,
-													end: new Date(newStart.getFullYear(), newStart.getMonth(), newStart.getDate() + parseInt(newEnd)),
-												};
+													var newCalItem = {
+														id: newTitle,
+														title: newTitle,
+														allDay: true,
+														start: newStart,
+														end: new Date(newStart.getFullYear(), newStart.getMonth(), newStart.getDate() + parseInt(newEnd)),
+													};
 
-												ec.addEvent(newCalItem);
+													ec.addEvent(newCalItem);
 
-												setDoc(doc(db, "events", newTitle), newEvent);
-											} else {
-												var newEvent = {
-													id: newTitle,
-													title: newTitle,
-													allDay: false,
-													year: newStart.getFullYear(),
-													month: newStart.getMonth(),
-													day: newStart.getDate(),
-													starthour: parseTime(newStartTime, "hour"),
-													startminute: parseTime(newStartTime, "minute"),
-													endhour: parseTime(newEndTime, "hour"),
-													endminute: parseTime(newEndTime, "minute"),
-												};
+													setDoc(doc(db, "events", newTitle), newEvent);
+												} else {
+													var newEvent = {
+														id: newTitle,
+														title: newTitle,
+														allDay: false,
+														year: newStart.getFullYear(),
+														month: newStart.getMonth(),
+														day: newStart.getDate(),
+														starthour: parseTime(newStartTime, "hour"),
+														startminute: parseTime(newStartTime, "minute"),
+														endhour: parseTime(newEndTime, "hour"),
+														endminute: parseTime(newEndTime, "minute"),
+													};
 
-												var newCalItem = {
-													id: newTitle,
-													title: newTitle,
-													allDay: false,
-													start: new Date(
-														newStart.getFullYear(),
-														newStart.getMonth(),
-														newStart.getDate(),
-														parseTime(newStartTime, "hour"),
-														parseTime(newStartTime, "minute")
-													),
-													end: new Date(newStart.getFullYear(), newStart.getMonth(), newStart.getDate(), parseTime(newEndTime, "hour"), parseTime(newEndTime, "minute")),
-												};
+													var newCalItem = {
+														id: newTitle,
+														title: newTitle,
+														allDay: false,
+														start: new Date(
+															newStart.getFullYear(),
+															newStart.getMonth(),
+															newStart.getDate(),
+															parseTime(newStartTime, "hour"),
+															parseTime(newStartTime, "minute")
+														),
+														end: new Date(newStart.getFullYear(), newStart.getMonth(), newStart.getDate(), parseTime(newEndTime, "hour"), parseTime(newEndTime, "minute")),
+													};
 
-												ec.addEvent(newCalItem);
+													ec.addEvent(newCalItem);
 
-												setDoc(doc(db, "events", newTitle), newEvent);
-											}
-										}}
-									>
-										Add Event
-									</Button>
-								</div>
-								<div class="mr-4">
-									<div class="flex justify-between">
-										<TextField outlined bind:value={newTitle}>Title</TextField>
+													setDoc(doc(db, "events", newTitle), newEvent);
+												}
+											}}
+										>
+											Add Event
+										</Button>
 									</div>
-									<div class="flex justify-between mt-4">
-										All Day Event
-										<Switch bind:checked={allDay} />
-									</div>
-									<div class="flex justify-between my-4">
-										<DatePicker on:select={console.log(newStart)} bind:value={newStart} />
-									</div>
-
-									{#if !allDay}
-										<div class="flex justify-between my-4">
-											<TextField outlined bind:value={newStartTime}>Start Time</TextField>
-										</div>
-										<div class="flex justify-between mb-8">
-											<TextField outlined bind:value={newEndTime}>End Time</TextField>
-										</div>
-									{:else}
+									<div class="mr-4">
 										<div class="flex justify-between">
-											<TextField outlined bind:value={newEnd}>Length</TextField>
+											<TextField outlined bind:value={newTitle}>Title</TextField>
 										</div>
-									{/if}
-								</div>
-							</div>
-							<div class="flex flex-col">
-								<div>
-									<Button
-										class="my-4"
-										on:click={() => {
-											deleteDoc(doc(db, "events", removeName));
+										<div class="flex justify-between mt-4">
+											All Day Event
+											<Switch bind:checked={allDay} />
+										</div>
+										<div class="flex justify-between my-4">
+											<DatePicker on:select={console.log(newStart)} bind:value={newStart} />
+										</div>
 
-											ec.removeEventById(removeName);
-										}}
-									>
-										Remove Event
-									</Button>
+										{#if !allDay}
+											<div class="flex justify-between my-4">
+												<TextField outlined bind:value={newStartTime}>Start Time</TextField>
+											</div>
+											<div class="flex justify-between mb-8">
+												<TextField outlined bind:value={newEndTime}>End Time</TextField>
+											</div>
+										{:else}
+											<div class="flex justify-between">
+												<TextField outlined bind:value={newEnd}>Length</TextField>
+											</div>
+										{/if}
+									</div>
 								</div>
-								<div>
+								<div class="flex flex-col">
 									<div>
-										<TextField outlined bind:value={removeName}>Title</TextField>
+										<Button
+											class="my-4"
+											on:click={() => {
+												deleteDoc(doc(db, "events", removeName));
+
+												ec.removeEventById(removeName);
+											}}
+										>
+											Remove Event
+										</Button>
+									</div>
+									<div>
+										<div>
+											<TextField outlined bind:value={removeName}>Title</TextField>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>
+					{/if}
 				</TabContent>
 			</div>
 		</Tabs>

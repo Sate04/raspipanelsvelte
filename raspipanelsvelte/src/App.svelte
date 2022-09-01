@@ -132,15 +132,16 @@
 			"X-RapidAPI-Host": "bing-news-search1.p.rapidapi.com",
 		},
 	};
-
-	axios.request(newsOptions).then(function (response) {
-		newsHeadlines = response.data.value;
-		newsHeadlines = newsHeadlines
-			.filter(article => {
-				return article.image != null;
-			})
-			.slice(0, 15);
-	});
+	if (false) {
+		axios.request(newsOptions).then(function (response) {
+			newsHeadlines = response.data.value;
+			newsHeadlines = newsHeadlines
+				.filter(article => {
+					return article.image != null;
+				})
+				.slice(0, 15);
+		});
+	}
 
 	function parseTime(time, part) {
 		switch (part) {
@@ -158,51 +159,52 @@
 				}
 		}
 	}
+
+	let images = [];
+
+	const imageRef = collection(db, "links");
+
+	const imageData = onSnapshot(imageRef, querySnapshot => {
+		querySnapshot.forEach(doc => {
+			images.push(atob(doc.data().link));
+			images = images;
+		});
+	});
+
+	let nfldata = [];
+	let eventdata = [];
+	async function getNFL() {
+		return new Promise(async resolve => {
+			await axios.get("https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events").then(response => {
+				nfldata = response.data.items;
+				let nflsize = nfldata.length;
+				nfldata.forEach(async item => {
+					await axios.get(item.$ref).then(response => {
+						nflsize--;
+						eventdata.push(response.data);
+						if (nflsize == 0) {
+							resolve();
+						}
+					});
+				});
+			});
+		});
+	}
+
+	getNFL().then(() => {
+		console.log(eventdata);
+	});
 </script>
 
 <MaterialApp {theme}>
 	<main>
-		<!--
-		{#if pagenum == 0}
-			<div class="flex justify-evenly">
-				<div>
-					<btn
-						on:click={() => {
-							pagenum = 1;
-						}}>Sports</btn
-					>
-				</div>
-				<div>
-					<btn
-						on:click={() => {
-							pagenum = 2;
-						}}>News</btn
-					>
-				</div>
-				<div>
-					<btn
-						on:click={() => {
-							pagenum = 3;
-							cryptoUpdate();
-						}}>Cryptocurrency</btn
-					>
-				</div>
-				<div>
-					<btn
-						on:click={() => {
-							pagenum = 4;
-						}}>Calendar</btn
-					>
-				</div>
-			</div>
-		{/if}
-		-->
 		<Tabs centerActive>
 			<div slot="tabs">
 				<Tab>Sports</Tab>
 				<Tab>News</Tab>
 				<Tab>Cryptocurrency</Tab>
 				<Tab>Calendar</Tab>
+				<Tab>Images</Tab>
 			</div>
 			<div>
 				<TabContent>
@@ -385,6 +387,17 @@
 							</div>
 						</div>
 					{/if}
+				</TabContent>
+
+				<TabContent>
+					<div class="grid grid-flow-col grid-cols-3 gap-4">
+						{#each images as image}
+							<div class="flex flex-col flex-center">
+								<img class="" src={image} />
+							</div>
+						{/each}
+					</div>
+					<!--IMAGES-->
 				</TabContent>
 			</div>
 		</Tabs>

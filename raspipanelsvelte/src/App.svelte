@@ -7,6 +7,7 @@
 	import {DateInput, DatePicker} from "date-picker-svelte";
 	import axios from "axios";
 	import {Button, TextField, MaterialApp, Tabs, Tab, TabContent, Switch} from "svelte-materialify";
+	import {get} from "svelte/store";
 
 	let theme = "light";
 
@@ -175,25 +176,24 @@
 	let eventdata = [];
 	async function getNFL() {
 		return new Promise(async resolve => {
-			await axios.get("https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events").then(response => {
-				nfldata = response.data.items;
-				let nflsize = nfldata.length;
-				nfldata.forEach(async item => {
-					await axios.get(item.$ref).then(response => {
-						nflsize--;
-						eventdata.push(response.data);
-						if (nflsize == 0) {
-							resolve();
-						}
-					});
-				});
+			let response = await axios.get("https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events");
+			nfldata = response.data.items;
+			let nflsize = nfldata.length;
+			nfldata.forEach(async item => {
+				let eventresponse = await axios.get(item.$ref);
+				console.log(eventresponse.data);
+				nflsize--;
+				eventdata.push(eventresponse.data);
+				if (nflsize == 0) {
+					resolve(eventdata);
+				}
 			});
 		});
 	}
 
-	getNFL().then(() => {
-		console.log(eventdata);
-	});
+	function getLink(link) {
+		return axios.get(link);
+	}
 </script>
 
 <MaterialApp {theme}>
@@ -220,6 +220,30 @@
 							allowfullscreen
 						/>
 					</div>
+
+					{#await getNFL() then events}
+						<div class="grid grid-flow-col grid-rows-4 gap-3 mt-4">
+							{#each events as event}
+								<div class="flex flex-col border-4 p-2">
+									<div class="flex flex-row justify-evenly">
+										{#await getLink(event.competitions[0].competitors[1].team.$ref) then team}
+											<img class="h-24" src={team.data.logos[0].href} />
+										{/await}
+										{#await getLink(event.competitions[0].competitors[0].team.$ref) then team}
+											<img class="h-24" src={team.data.logos[0].href} />
+										{/await}
+									</div>
+									<p>{event.name}</p>
+									<p>{event.competitions[0].date}</p>
+									{#if event.competitions[0].boxscoreAvailable}
+										<!--Will put event score here once season starts and I can see the format, every event rn has no box score available-->
+									{:else}
+										<p>Game Score Isn't Available</p>
+									{/if}
+								</div>
+							{/each}
+						</div>
+					{/await}
 				</TabContent>
 
 				<TabContent>

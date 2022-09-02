@@ -3,11 +3,10 @@
 	import TimeGrid from "@event-calendar/time-grid";
 	import DayGrid from "@event-calendar/day-grid";
 	import {initializeApp, getApps, getApp} from "firebase/app";
-	import {getFirestore, collection, onSnapshot, doc, setDoc, getDoc, deleteDoc} from "firebase/firestore";
-	import {DateInput, DatePicker} from "date-picker-svelte";
+	import {getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc} from "firebase/firestore";
+	import {DatePicker} from "date-picker-svelte";
 	import axios from "axios";
 	import {Button, TextField, MaterialApp, Tabs, Tab, TabContent, Switch} from "svelte-materialify";
-	import {get} from "svelte/store";
 
 	let theme = "light";
 
@@ -72,7 +71,7 @@
 	let ec;
 	let plugins = [TimeGrid, DayGrid];
 
-	let pagenum = 0;
+	let cryptoids = [80, 90, 2];
 
 	let newTitle;
 	let newStart = new Date();
@@ -84,27 +83,6 @@
 	let removeName;
 	let allDay = true;
 
-	let btc = cryptoUpdate();
-	let eth;
-	let doge;
-	function cryptoUpdate() {
-		axios({
-			method: "get",
-			url: "https://api.coingecko.com/api/v3/simple/price",
-			params: {
-				ids: "bitcoin,ethereum,dogecoin",
-				vs_currencies: "usd",
-			},
-		}).then(function (response) {
-			btc = response.data.bitcoin.usd;
-			eth = response.data.ethereum.usd;
-			doge = response.data.dogecoin.usd;
-			btc = btc;
-			eth = eth;
-			doge = doge;
-		});
-	}
-	setInterval(cryptoUpdate, 1000);
 	let results = [];
 	let articles = [];
 	axios({
@@ -279,16 +257,14 @@
 						<div class="flex justify-evenly">
 							<img alt="Sorry" src="https://bitcoin.org/img/icons/opengraph.png?1660986466" />
 						</div>
-						<div class="flex flex-row justify-around">
-							<p>
-								BTC: ${btc}
-							</p>
-							<p>
-								ETH: ${eth}
-							</p>
-							<p>
-								DOGE: ${doge}
-							</p>
+						<div class="flex flex-row justify-evenly">
+							{#each cryptoids as coin}
+								<div>
+									{#await getLink(`https://api.coinlore.net/api/ticker/?id=${coin}`) then response}
+										{response.data[0].name}: ${response.data[0].price_usd}
+									{/await}
+								</div>
+							{/each}
 						</div>
 					</div>
 				</TabContent>

@@ -212,6 +212,7 @@
 						<Radio bind:group value={1}>NFL</Radio>
 						<Radio bind:group value={2}>MLB</Radio>
 						<Radio bind:group value={3}>NHL</Radio>
+						<Radio bind:group value={4}>NBA</Radio>
 					</div>
 					{#if group == 1}
 						{#await getESPN("https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events") then events}
@@ -293,6 +294,45 @@
 						{/await}
 					{:else if group == 3}
 						{#await getESPN("https://sports.core.api.espn.com/v2/sports/hockey/leagues/nhl/events") then events}
+							<div class="grid grid-flow-col grid-rows-4 gap-3 mt-4">
+								{#each events as event}
+									<div class="flex flex-col border-4 p-2">
+										<p class="font-bold">{event.name}</p>
+										<div class="flex flex-row justify-evenly">
+											{#await getLink(event.competitions[0].competitors[1].team.$ref) then team}
+												<img class="h-24" src={team.data.logos[0].href} />
+											{/await}
+											{#await getLink(event.competitions[0].competitors[0].team.$ref) then team}
+												<img class="h-24" src={team.data.logos[0].href} />
+											{/await}
+										</div>
+
+										{#if event.competitions[0].boxscoreAvailable}
+											<p class="text-3xl">
+												{#await getLink(event.competitions[0].competitors[1].score.$ref) then score}
+													{score.data.value}
+												{/await}
+												—
+												{#await getLink(event.competitions[0].competitors[0].score.$ref) then score}
+													{score.data.value}
+												{/await}
+											</p>
+										{:else}
+											<p class="mt-2">
+												Game Starts:&nbsp;&nbsp;&nbsp;<span class="font-bold">{getWeekday(new Date(event.competitions[0].date).getDay())}</span>
+												<span class="font-bold"
+													>{new Date(event.competitions[0].date)
+														.toLocaleTimeString()
+														.substring(0, new Date(event.competitions[0].date).toLocaleTimeString().indexOf("PM") - 4)} PM</span
+												>
+											</p>
+										{/if}
+									</div>
+								{/each}
+							</div>
+						{/await}
+					{:else if group == 4}
+						{#await getESPN("https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/events") then events}
 							<div class="grid grid-flow-col grid-rows-4 gap-3 mt-4">
 								{#each events as event}
 									<div class="flex flex-col border-4 p-2">

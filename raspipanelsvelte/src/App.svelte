@@ -6,7 +6,7 @@
 	import {getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc} from "firebase/firestore";
 	import {DatePicker} from "date-picker-svelte";
 	import axios from "axios";
-	import {Button, TextField, MaterialApp, Tabs, Tab, TabContent, Switch} from "svelte-materialify";
+	import {Button, TextField, MaterialApp, Tabs, Tab, TabContent, Switch, Radio} from "svelte-materialify";
 
 	let theme = "light";
 
@@ -67,6 +67,8 @@
 		});
 		rerender = true;
 	});
+
+	let group = 1;
 
 	let ec;
 	let plugins = [TimeGrid, DayGrid];
@@ -150,11 +152,11 @@
 		});
 	});
 
-	let nfldata = [];
-	let eventdata = [];
-	async function getNFL() {
+	async function getESPN(league) {
+		let nfldata = [];
+		let eventdata = [];
 		return new Promise(async resolve => {
-			let response = await axios.get("https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events");
+			let response = await axios.get(league);
 			nfldata = response.data.items;
 			let nflsize = nfldata.length;
 			nfldata.forEach(async item => {
@@ -172,6 +174,25 @@
 	function getLink(link) {
 		return axios.get(link);
 	}
+
+	function getWeekday(day) {
+		switch (day) {
+			case 1:
+				return "Monday";
+			case 2:
+				return "Tuesday";
+			case 3:
+				return "Wednesday";
+			case 4:
+				return "Thursday";
+			case 5:
+				return "Friday";
+			case 6:
+				return "Saturday";
+			case 0:
+				return "Sunday";
+		}
+	}
 </script>
 
 <MaterialApp {theme}>
@@ -187,41 +208,129 @@
 			<div>
 				<TabContent>
 					<!--SPORTS-->
-					<div>
-						<iframe
-							width="560"
-							height="315"
-							src="https://www.youtube.com/embed/kknVfOJZ1w0"
-							title="YouTube video player"
-							frameborder="0"
-							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-							allowfullscreen
-						/>
+					<div class="d-flex justify-space-around my-2">
+						<Radio bind:group value={1}>NFL</Radio>
+						<Radio bind:group value={2}>MLB</Radio>
+						<Radio bind:group value={3}>NHL</Radio>
 					</div>
+					{#if group == 1}
+						{#await getESPN("https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events") then events}
+							<div class="grid grid-flow-col grid-rows-4 gap-3 mt-4">
+								{#each events as event}
+									<div class="flex flex-col border-4 p-2">
+										<p class="font-bold">{event.name}</p>
+										<div class="flex flex-row justify-evenly">
+											{#await getLink(event.competitions[0].competitors[1].team.$ref) then team}
+												<img class="h-24" src={team.data.logos[0].href} />
+											{/await}
+											{#await getLink(event.competitions[0].competitors[0].team.$ref) then team}
+												<img class="h-24" src={team.data.logos[0].href} />
+											{/await}
+										</div>
 
-					{#await getNFL() then events}
-						<div class="grid grid-flow-col grid-rows-4 gap-3 mt-4">
-							{#each events as event}
-								<div class="flex flex-col border-4 p-2">
-									<div class="flex flex-row justify-evenly">
-										{#await getLink(event.competitions[0].competitors[1].team.$ref) then team}
-											<img class="h-24" src={team.data.logos[0].href} />
-										{/await}
-										{#await getLink(event.competitions[0].competitors[0].team.$ref) then team}
-											<img class="h-24" src={team.data.logos[0].href} />
-										{/await}
+										{#if event.competitions[0].boxscoreAvailable}
+											<p class="text-3xl">
+												{#await getLink(event.competitions[0].competitors[1].score.$ref) then score}
+													{score.data.value}
+												{/await}
+												—
+												{#await getLink(event.competitions[0].competitors[0].score.$ref) then score}
+													{score.data.value}
+												{/await}
+											</p>
+										{:else}
+											<p class="mt-2">
+												Game Starts:&nbsp;&nbsp;&nbsp;<span class="font-bold">{getWeekday(new Date(event.competitions[0].date).getDay())}</span>
+												<span class="font-bold"
+													>{new Date(event.competitions[0].date)
+														.toLocaleTimeString()
+														.substring(0, new Date(event.competitions[0].date).toLocaleTimeString().indexOf("PM") - 4)} PM</span
+												>
+											</p>
+										{/if}
 									</div>
-									<p>{event.name}</p>
-									<p>{event.competitions[0].date}</p>
-									{#if event.competitions[0].boxscoreAvailable}
-										<!--Will put event score here once season starts and I can see the format, every event rn has no box score available-->
-									{:else}
-										<p>Game Score Isn't Available</p>
-									{/if}
-								</div>
-							{/each}
-						</div>
-					{/await}
+								{/each}
+							</div>
+						{/await}
+					{:else if group == 2}
+						{#await getESPN("https://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/events") then events}
+							<div class="grid grid-flow-col grid-rows-4 gap-3 mt-4">
+								{#each events as event}
+									<div class="flex flex-col border-4 p-2">
+										<p class="font-bold">{event.name}</p>
+										<div class="flex flex-row justify-evenly">
+											{#await getLink(event.competitions[0].competitors[1].team.$ref) then team}
+												<img class="h-24" src={team.data.logos[0].href} />
+											{/await}
+											{#await getLink(event.competitions[0].competitors[0].team.$ref) then team}
+												<img class="h-24" src={team.data.logos[0].href} />
+											{/await}
+										</div>
+
+										{#if event.competitions[0].boxscoreAvailable}
+											<p class="text-3xl">
+												{#await getLink(event.competitions[0].competitors[1].score.$ref) then score}
+													{score.data.value}
+												{/await}
+												—
+												{#await getLink(event.competitions[0].competitors[0].score.$ref) then score}
+													{score.data.value}
+												{/await}
+											</p>
+										{:else}
+											<p class="mt-2">
+												Game Starts:&nbsp;&nbsp;&nbsp;<span class="font-bold">{getWeekday(new Date(event.competitions[0].date).getDay())}</span>
+												<span class="font-bold"
+													>{new Date(event.competitions[0].date)
+														.toLocaleTimeString()
+														.substring(0, new Date(event.competitions[0].date).toLocaleTimeString().indexOf("PM") - 4)} PM</span
+												>
+											</p>
+										{/if}
+									</div>
+								{/each}
+							</div>
+						{/await}
+					{:else if group == 3}
+						{#await getESPN("https://sports.core.api.espn.com/v2/sports/hockey/leagues/nhl/events") then events}
+							<div class="grid grid-flow-col grid-rows-4 gap-3 mt-4">
+								{#each events as event}
+									<div class="flex flex-col border-4 p-2">
+										<p class="font-bold">{event.name}</p>
+										<div class="flex flex-row justify-evenly">
+											{#await getLink(event.competitions[0].competitors[1].team.$ref) then team}
+												<img class="h-24" src={team.data.logos[0].href} />
+											{/await}
+											{#await getLink(event.competitions[0].competitors[0].team.$ref) then team}
+												<img class="h-24" src={team.data.logos[0].href} />
+											{/await}
+										</div>
+
+										{#if event.competitions[0].boxscoreAvailable}
+											<p class="text-3xl">
+												{#await getLink(event.competitions[0].competitors[1].score.$ref) then score}
+													{score.data.value}
+												{/await}
+												—
+												{#await getLink(event.competitions[0].competitors[0].score.$ref) then score}
+													{score.data.value}
+												{/await}
+											</p>
+										{:else}
+											<p class="mt-2">
+												Game Starts:&nbsp;&nbsp;&nbsp;<span class="font-bold">{getWeekday(new Date(event.competitions[0].date).getDay())}</span>
+												<span class="font-bold"
+													>{new Date(event.competitions[0].date)
+														.toLocaleTimeString()
+														.substring(0, new Date(event.competitions[0].date).toLocaleTimeString().indexOf("PM") - 4)} PM</span
+												>
+											</p>
+										{/if}
+									</div>
+								{/each}
+							</div>
+						{/await}
+					{/if}
 				</TabContent>
 
 				<TabContent>

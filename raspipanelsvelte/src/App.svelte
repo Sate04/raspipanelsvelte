@@ -8,7 +8,7 @@
 	import axios from "axios";
 	import {Button, TextField, MaterialApp, Tabs, Tab, TabContent, Switch, Radio} from "svelte-materialify";
 
-	let theme = "light";
+	let theme = "dark";
 
 	let items = [];
 
@@ -195,10 +195,45 @@
 	}
 </script>
 
-<MaterialApp {theme}>
-	<main>
+<svelte:head>
+	<title>Raspipanel</title>
+	<link href="https://filedrive.gafcodes.com/users/Goof/resetBasic.css" rel="stylesheet" />
+	<style lang="scss">
+		:global(body) {
+			margin: 0;
+			overflow: hidden;
+		}
+		html {
+			width: 100%;
+			height: 100vh;
+			overflow-y: hidden;
+			body {
+				width: 100%;
+				height: 100vh;
+			}
+		}
+		main {
+			height: calc(100vh - 3.5em);
+			width: 100%;
+		}
+		div.messageWrapper {
+			height: 90%;
+			width: 100%;
+			margin-top: -5rem;
+			overflow-y: auto;
+		}
+		html body * {
+			@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
+			font-family: "Montserrat", sans-serif;
+		}
+	</style>
+</svelte:head>
+
+<MaterialApp {theme} class="">
+	<main class="theme-dark">
 		<Tabs centerActive>
 			<div slot="tabs">
+				<Tab>Home</Tab>
 				<Tab>Sports</Tab>
 				<Tab>News</Tab>
 				<Tab>Cryptocurrency</Tab>
@@ -206,6 +241,22 @@
 				<Tab>Images</Tab>
 			</div>
 			<div>
+				<TabContent>
+					<p class="font-bold text-8xl text-gray-600 mt-5">WELCOME</p>
+					<div class="grid gap-4 grid-flow-row grid-cols-5 mt-10">
+						<img class="h-96" src="https://media1.giphy.com/media/3oEjHWbXcpeKhTktXi/giphy.gif" />
+						<img class="h-96" src="https://i.pinimg.com/originals/8b/e4/ef/8be4efc0a8e5bc4903aae00db82cb982.gif" />
+						<img class="h-96" src="https://media3.giphy.com/media/9WC8WTZsFxkRi/200w.gif?cid=82a1493brfycdfvkqnbw0utzippfu16ifyek25oxwyxiwlot&rid=200w.gif&ct=g" />
+						<img class="h-96" src="https://media3.giphy.com/media/8WeatsYCC54TC/200.gif" />
+						<img class="h-96" src="https://privacyinternational.org/sites/default/files/flysystem/2018-02/giphy.gif" />
+						<img class="h-96" src="https://i.pinimg.com/originals/8b/e4/ef/8be4efc0a8e5bc4903aae00db82cb982.gif" />
+						<img class="h-96" src="https://privacyinternational.org/sites/default/files/flysystem/2018-02/giphy.gif" />
+						<img class="h-96" src="https://media1.giphy.com/media/3oEjHWbXcpeKhTktXi/giphy.gif" />
+						<img class="h-96" src="https://i.pinimg.com/originals/8b/e4/ef/8be4efc0a8e5bc4903aae00db82cb982.gif" />
+						<img class="h-96" src="https://media3.giphy.com/media/8WeatsYCC54TC/200.gif" />
+					</div>
+				</TabContent>
+
 				<TabContent>
 					<!--SPORTS-->
 					<div class="d-flex justify-space-around my-2">
